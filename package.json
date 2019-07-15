@@ -25,6 +25,7 @@
     "electron": "^5.0.6"
   },
   "dependencies": {
+    "electron-tabs": "^0.9.5",
     "electron-traywindow-positioner": "0.0.2"
   }
 }

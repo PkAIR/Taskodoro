@@ -7,11 +7,11 @@ const trayIconPath = path.join(__dirname, './assets/trayIcon.png');
 const mainIconPath = path.join(__dirname, './assets/mainIcon.png');
 
 let tray;
-let todoListWindow;
-let timerWindow;
+let mainWindow;
+let tabsWindow;
 
 app.on('ready', () => {
-    todoListWindow = new BrowserWindow({
+    mainWindow = new BrowserWindow({
         width:400,
         height: 600,
         frame: false,
@@ -22,55 +22,80 @@ app.on('ready', () => {
         }
     });
 
-    timerWindow = new BrowserWindow({
-        width:400,
-        height: 600,
-        frame: false,
-        show: false,
-        icon: mainIconPath,
-        webPreferences: {
-            nodeIntegration: true
-        }
-    });
-
-    todoListWindow.loadURL(url.format({
-        pathname: path.join(__dirname, 'pages/tasks_page.html'),
+    mainWindow.loadURL(url.format({
+        pathname: path.join(__dirname, 'pages/windows/main/main_page.html'),
         protocol: 'file:',
         slashes: true
     }));
 
-    timerWindow.loadURL(url.format({
-        pathname: path.join(__dirname, 'pages/timer_page.html'),
-        protocol: 'file:',
-        slashes: true
-    }));
-
-    todoListWindow.on('blur', () => {
-        todoListWindow.hide();
+    mainWindow.on('blur', () => {
+        mainWindow.hide();
     });
     
+    mainWindow.on("closed", () => {
+        mainWindow = null;
+        tabsWindow && tabsWindow.close();
+    });
+
     tray = new Tray(trayIconPath);
     tray.setToolTip("Taskodoro is live");
     tray.setContextMenu(trayContextMenu);
 
     tray.on('click', (_, bouds) => {
-        positioner.position(todoListWindow, bouds);
-        positioner.position(timerWindow, bouds);
-        if (todoListWindow.isVisible()) {
-            todoListWindow.hide();
+        positioner.position(mainWindow, bouds);
+        if (mainWindow.isVisible()) {
+            mainWindow.hide();
         } else {
-            todoListWindow.show();
+            mainWindow.show();
         };
     });    
 });
+
+app.on("window-all-closed", () => app.quit());
+
+ipcMain.on("open-tabs-window", (event, params) => {
+    // When the renderer process requests to open a new tab, check if a tabs window already exists or not
+    if (!tabsWindow) {
+      // If the tab window doesn't exist (first tab is opened), create the tab window first
+      tabsWindow = new BrowserWindow({
+        width:400,
+        height: 600,
+        frame: false,
+        show: false,
+        icon: mainIconPath,
+        webPreferences: {
+            nodeIntegration: true
+        }
+      });
+      
+      tabsWindow.loadURL(path.resolve("pages/windows/tabs/tabs.html"));
+  
+      // Dereference the tab window when it closes
+      tabsWindow.on("close", () => tabsWindow = null);
+  
+      // When the tab window finished loading, dispatch an event to add a new tab
+      tabsWindow.webContents.once("did-finish-load", () => {
+        tabsWindow.webContents.send("open-tab", params);
+      });
+    } else {
+      // Otherwise, the tab window already exists, so just dispatch an event to add a new tab
+      tabsWindow.webContents.send("open-tab", params);
+    }
+  
+    // Focus on the tabbed window
+    tabsWindow.focus();
+});
+  
+// When the last tab is closed, this event is triggered, which will close the tab window
+ipcMain.on("close-tabs-window", () => tabsWindow.close());
 
 var trayContextMenu = Menu.buildFromTemplate([
     {
         label: 'Toogle DevTools',
         accelerator: 'Ctrl+I',
         click() {
-            todoListWindow.show();
-            todoListWindow.toggleDevTools();
+            mainWindow.show();
+            mainWindow.toggleDevTools();
         }
     },
     {
@@ -81,22 +106,3 @@ var trayContextMenu = Menu.buildFromTemplate([
         }
     }
 ]);
-
-ipcMain.on('open:timer', () => {
-    openTimerPage();
-});
-
-ipcMain.on('open:tasks', () => {
-    openToDoListPage();
-});
-
-function openToDoListPage() {
-    timerWindow.hide();
-    todoListWindow.show();
-};
-
-function openTimerPage() {
-    todoListWindow.hide();
-    timerWindow.show();
-};
-
