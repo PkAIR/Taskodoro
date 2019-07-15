@@ -1,0 +1,30 @@
+{
+  "name": "taskodoro",
+  "version": "0.0.1",
+  "description": "Simple pomodoro timer with simple todo list in mind",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PkAIR/Taskodoro.git"
+  },
+  "keywords": [
+    "electron",
+    "pomodoro",
+    "tray"
+  ],
+  "author": "AIR",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/PkAIR/Taskodoro/issues"
+  },
+  "homepage": "https://github.com/PkAIR/Taskodoro#readme",
+  "devDependencies": {
+    "electron": "^5.0.6"
+  },
+  "dependencies": {
+    "electron-traywindow-positioner": "0.0.2"
+  }
+}
