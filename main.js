@@ -1,4 +1,4 @@
-const {app, Tray, Menu, BrowserWindow} = require('electron');
+const { app, Tray, Menu, BrowserWindow, ipcMain } = require('electron');
 const positioner = require('electron-traywindow-positioner');
 const path = require('path');
 const url = require('url');
@@ -7,25 +7,46 @@ const trayIconPath = path.join(__dirname, './assets/trayIcon.png');
 const mainIconPath = path.join(__dirname, './assets/mainIcon.png');
 
 let tray;
-let mainWindow;
+let todoListWindow;
+let timerWindow;
 
 app.on('ready', () => {
-    mainWindow = new BrowserWindow({
+    todoListWindow = new BrowserWindow({
         width:400,
         height: 600,
         frame: false,
         show: false,
-        icon: mainIconPath
+        icon: mainIconPath,
+        webPreferences: {
+            nodeIntegration: true
+        }
     });
 
-    mainWindow.loadURL(url.format({
-        pathname: path.join(__dirname, 'pages/tasks_list.html'),
+    timerWindow = new BrowserWindow({
+        width:400,
+        height: 600,
+        frame: false,
+        show: false,
+        icon: mainIconPath,
+        webPreferences: {
+            nodeIntegration: true
+        }
+    });
+
+    todoListWindow.loadURL(url.format({
+        pathname: path.join(__dirname, 'pages/tasks_page.html'),
         protocol: 'file:',
         slashes: true
     }));
 
-    mainWindow.on('blur', () => {
-        mainWindow.hide();
+    timerWindow.loadURL(url.format({
+        pathname: path.join(__dirname, 'pages/timer_page.html'),
+        protocol: 'file:',
+        slashes: true
+    }));
+
+    todoListWindow.on('blur', () => {
+        todoListWindow.hide();
     });
     
     tray = new Tray(trayIconPath);
@@ -33,11 +54,12 @@ app.on('ready', () => {
     tray.setContextMenu(trayContextMenu);
 
     tray.on('click', (_, bouds) => {
-        positioner.position(mainWindow, bouds);
-        if (mainWindow.isVisible()) {
-            mainWindow.hide();
+        positioner.position(todoListWindow, bouds);
+        positioner.position(timerWindow, bouds);
+        if (todoListWindow.isVisible()) {
+            todoListWindow.hide();
         } else {
-            mainWindow.show();
+            todoListWindow.show();
         };
     });    
 });
@@ -47,8 +69,8 @@ var trayContextMenu = Menu.buildFromTemplate([
         label: 'Toogle DevTools',
         accelerator: 'Ctrl+I',
         click() {
-            mainWindow.show();
-            mainWindow.toggleDevTools();
+            todoListWindow.show();
+            todoListWindow.toggleDevTools();
         }
     },
     {
@@ -59,4 +81,22 @@ var trayContextMenu = Menu.buildFromTemplate([
         }
     }
 ]);
+
+ipcMain.on('open:timer', () => {
+    openTimerPage();
+});
+
+ipcMain.on('open:tasks', () => {
+    openToDoListPage();
+});
+
+function openToDoListPage() {
+    timerWindow.hide();
+    todoListWindow.show();
+};
+
+function openTimerPage() {
+    todoListWindow.hide();
+    timerWindow.show();
+};
 

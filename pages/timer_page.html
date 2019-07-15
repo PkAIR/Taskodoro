@@ -7,5 +7,14 @@
 
 <body>
     <h4>Timer Dummy page</h4>
+    <button onclick="myFunction()">Open Tasks page</button>
 </body>
+<script>
+        const electron = require('electron');
+        const { ipcRenderer } = electron;
+    
+        function myFunction() {
+            ipcRenderer.send('open:tasks');
+        };
+    </script>
 </html>
