@@ -7,11 +7,10 @@ const trayIconPath = path.join(__dirname, './assets/trayIcon.png');
 const mainIconPath = path.join(__dirname, './assets/mainIcon.png');
 
 let tray;
-let todoListWindow;
-let timerWindow;
+let mainWindow
 
 app.on('ready', () => {
-    todoListWindow = new BrowserWindow({
+    mainWindow = new BrowserWindow({
         width:400,
         height: 600,
         frame: false,
@@ -22,31 +21,14 @@ app.on('ready', () => {
         }
     });
 
-    timerWindow = new BrowserWindow({
-        width:400,
-        height: 600,
-        frame: false,
-        show: false,
-        icon: mainIconPath,
-        webPreferences: {
-            nodeIntegration: true
-        }
-    });
-
-    todoListWindow.loadURL(url.format({
-        pathname: path.join(__dirname, 'pages/tasks_page.html'),
+    mainWindow.loadURL(url.format({
+        pathname: path.join(__dirname, 'pages/main_page.html'),
         protocol: 'file:',
         slashes: true
     }));
 
-    timerWindow.loadURL(url.format({
-        pathname: path.join(__dirname, 'pages/timer_page.html'),
-        protocol: 'file:',
-        slashes: true
-    }));
-
-    todoListWindow.on('blur', () => {
-        todoListWindow.hide();
+    mainWindow.on('blur', () => {
+        mainWindow.hide();
     });
     
     tray = new Tray(trayIconPath);
@@ -54,12 +36,11 @@ app.on('ready', () => {
     tray.setContextMenu(trayContextMenu);
 
     tray.on('click', (_, bouds) => {
-        positioner.position(todoListWindow, bouds);
-        positioner.position(timerWindow, bouds);
-        if (todoListWindow.isVisible()) {
-            todoListWindow.hide();
+        positioner.position(mainWindow, bouds);
+        if (mainWindow.isVisible()) {
+            mainWindow.hide();
         } else {
-            todoListWindow.show();
+            mainWindow.show();
         };
     });    
 });
@@ -69,8 +50,8 @@ var trayContextMenu = Menu.buildFromTemplate([
         label: 'Toogle DevTools',
         accelerator: 'Ctrl+I',
         click() {
-            todoListWindow.show();
-            todoListWindow.toggleDevTools();
+            mainWindow.show();
+            mainWindow.toggleDevTools();
         }
     },
     {
@@ -81,22 +62,3 @@ var trayContextMenu = Menu.buildFromTemplate([
         }
     }
 ]);
-
-ipcMain.on('open:timer', () => {
-    openTimerPage();
-});
-
-ipcMain.on('open:tasks', () => {
-    openToDoListPage();
-});
-
-function openToDoListPage() {
-    timerWindow.hide();
-    todoListWindow.show();
-};
-
-function openTimerPage() {
-    todoListWindow.hide();
-    timerWindow.show();
-};
-
