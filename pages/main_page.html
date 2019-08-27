@@ -3,68 +3,16 @@
 
 <head>
     <title>Main Page</title>
-    <link rel="stylesheet" type="text/css" href="styles.css">
-    <link href="https://fonts.googleapis.com/css?family=Pacifico" rel="stylesheet">
-    <link rel="stylesheet" type="text/css" href="pomodoro.css">
 </head>
 
 <body>
-    <div class="tab">
-        <button id="defaultOpen" class="tablinks" onclick="openTab(event, 'tasks')">Tasks</button>
-        <button class="tablinks" onclick="openTab(event, 'timer')">Pomodoro</button>
-    </div>
-
-    <div id="tasks" class="tabcontent">
-            <h3>ToDo List</h3>
-            <p>Dummy ToDo list page.</p>
-    </div>
-
-    <div id="timer" class="tabcontent">
-            <h3>Pomodoro Timer</h1>
-            <div id="pomodoro">  
-                <div id="status"></div>
-                <div class="timerDisplay">25:00</div>
-                <button id="start-btn" class="btn">START</button>
-            </div>
-            
-            <div class="settings">
-                <div id="work">
-                    <p>Work Duration</p>
-                    <button class="btn-settings" id="work-plus">+</button>
-                    <div>
-                        <span id="work-min">25</span> mins
-                    </div>
-                    <button class="btn-settings" id="work-minus">-</button>
-                </div>
-                <button id="reset" class="btn">RESET</button>
-                <div id="break">
-                <p>Break Duration</p>
-                <button class="btn-settings" id="break-plus">+</button>
-                <div>
-                    <span id="break-min">5</span> mins
-                </div>
-                <button class="btn-settings" id="break-minus">-</button>
-                </div>
-    </div>    
+        <form name="customForm" id="custom">
+                <input type="text" name="minutes" placeholder="Enter Minutes">
+              </form>
+    <div class="display">
+        <h1 class="display__time-left"></h1>
+        <p class="display__end-time"></p>
+      </div> 
+    <script  src="../js/timer.js"></script>
 </body>
-<script  src="../js/timer.js"></script>
-<script>
-    document.getElementById("defaultOpen").click();
-
-    function openTab(evt, tabId) {
-        var i, tabcontent, tablinks;
-        tabcontent = document.getElementsByClassName("tabcontent");
-        for (i = 0; i < tabcontent.length; i++) {
-        tabcontent[i].style.display = "none";
-        }
-    
-        tablinks = document.getElementsByClassName("tablinks");
-        for (i = 0; i < tablinks.length; i++) {
-        tablinks[i].className = tablinks[i].className.replace(" active", "");
-        }
-    
-        document.getElementById(tabId).style.display = "block";
-        evt.currentTarget.className += " active";
-    }  
-</script>
 </html>
